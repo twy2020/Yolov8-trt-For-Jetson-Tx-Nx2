@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NvidiaProprietary
+#
+# NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+# property and proprietary rights in and to this material, related
+# documentation and any modifications thereto. Any use, reproduction,
+# disclosure or distribution of this material and related documentation
+# without an express license agreement from NVIDIA CORPORATION or
+# its affiliates is strictly prohibited.
+
+# Mount UFS card when detected.
+#ACTION=="add", KERNEL=="sd[a-z][0-9]", SUBSYSTEM=="block", RUN{program}+="/usr/bin/systemd-mount --no-block --automount=yes --collect $devnode /media/%E{ID_FS_UUID}"
+
+# Unmount UFS card when removed.
+#ACTION=="remove", KERNEL=="sd[a-z][0-9]", SUBSYSTEM=="block", RUN{program}+="/usr/bin/systemd-umount /media/%E{ID_FS_UUID}"

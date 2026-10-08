@@ -1,0 +1,35 @@
+Requirement already satisfied: matplotlib in /home/teng/micromamba/envs/yolo36/lib/python3.6/site-packages (3.3.4)
+Collecting pandas
+  Downloading pandas-1.1.5-cp36-cp36m-manylinux2014_aarch64.whl (9.5 MB)
+Collecting psutil
+  Downloading psutil-7.0.0-cp36-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (279 kB)
+Collecting py-cpuinfo
+  Downloading py_cpuinfo-9.0.0-py3-none-any.whl (22 kB)
+Collecting pyyaml
+  Downloading PyYAML-6.0.1-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (669 kB)
+Collecting scipy
+  Downloading scipy-1.5.4-cp36-cp36m-manylinux2014_aarch64.whl (24.5 MB)
+Collecting seaborn
+  Downloading seaborn-0.11.2-py3-none-any.whl (292 kB)
+Collecting thop
+  Downloading thop-0.1.1.post2209072238-py3-none-any.whl (15 kB)
+Collecting tqdm
+  Downloading tqdm-4.64.1-py2.py3-none-any.whl (78 kB)
+Requirement already satisfied: cycler>=0.10 in /home/teng/micromamba/envs/yolo36/lib/python3.6/site-packages (from matplotlib) (0.11.0)
+Requirement already satisfied: python-dateutil>=2.1 in /home/teng/micromamba/envs/yolo36/lib/python3.6/site-packages (from matplotlib) (2.9.0.post0)
+Requirement already satisfied: kiwisolver>=1.0.1 in /home/teng/micromamba/envs/yolo36/lib/python3.6/site-packages (from matplotlib) (1.3.1)
+Requirement already satisfied: pillow>=6.2.0 in /home/teng/.local/lib/python3.6/site-packages (from matplotlib) (8.4.0)
+Requirement already satisfied: numpy>=1.15 in /home/teng/.local/lib/python3.6/site-packages (from matplotlib) (1.19.5)
+Requirement already satisfied: pyparsing!=2.0.4,!=2.1.2,!=2.1.6,>=2.0.3 in /home/teng/micromamba/envs/yolo36/lib/python3.6/site-packages (from matplotlib) (3.1.4)
+Collecting pytz>=2017.2
+  Downloading pytz-2025.2-py2.py3-none-any.whl (509 kB)
+Requirement already satisfied: torch in /home/teng/.local/lib/python3.6/site-packages (from thop) (1.10.0)
+Collecting importlib-resources
+  Downloading importlib_resources-5.4.0-py3-none-any.whl (28 kB)
+Requirement already satisfied: six>=1.5 in /home/teng/.local/lib/python3.6/site-packages (from python-dateutil>=2.1->matplotlib) (1.15.0)
+Collecting zipp>=3.1.0
+  Downloading zipp-3.6.0-py3-none-any.whl (5.3 kB)
+Requirement already satisfied: typing-extensions in /home/teng/micromamba/envs/yolo36/lib/python3.6/site-packages (from torch->thop) (4.1.1)
+Requirement already satisfied: dataclasses in /home/teng/.local/lib/python3.6/site-packages (from torch->thop) (0.8)
+Installing collected packages: zipp, pytz, scipy, pandas, importlib-resources, tqdm, thop, seaborn, pyyaml, py-cpuinfo, psutil
+Successfully installed importlib-resources-5.4.0 pandas-1.1.5 psutil-7.0.0 py-cpuinfo-9.0.0 pytz-2025.2 pyyaml-6.0.1 scipy-1.5.4 seaborn-0.11.2 thop-0.1.1.post2209072238 tqdm-4.64.1 zipp-3.6.0

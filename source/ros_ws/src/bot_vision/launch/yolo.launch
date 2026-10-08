@@ -1,0 +1,67 @@
+<launch>
+    <!-- === STM32 通信节点 === -->
+    <node name="stm_communication_node" 
+          pkg="bot_tools" 
+          type="ros_stm.py" 
+          output="screen"
+          respawn="true">
+        <param name="serial_port" value="/dev/ttyUpperBoard" />
+        <param name="baudrate" value="115200" />
+        <param name="log_level" value="info" />
+    </node>
+
+    <!-- 启动机械臂通信节点 -->
+    <node name="arm_communication_node" pkg="bot_arm" type="arm_communication_node.py" output="screen" respawn="true"/>
+    <node name="barcode_detections" pkg="bot_tools" type="code128.py" output="screen" respawn="true"/>
+    <!-- === USB 摄像头节点 === -->
+    <node name="usb_cam_node" 
+          pkg="bot_vision" 
+          type="usb_cam_node" 
+          output="screen"
+          respawn="true">
+        <param name="image_topic" value="/camera/image_raw" />
+        <param name="publish_rate" value="30.0" />
+        <param name="frame_width" value="640" />
+        <param name="frame_height" value="480" />
+        <param name="auto_exposure" value="true" />
+    </node>
+
+    <!-- === YOLO-TensorRT 检测节点 === -->
+    <arg name="engine_path" default="/home/teng/bot_dev/bot_ws/src/bot_vision/engine_models/wuliao_320_v8_nms_simp_static.engine" />
+
+    <node name="yolo_trt_node" 
+          pkg="bot_vision" 
+          type="yolo_trt_node" 
+          output="screen"
+          respawn="true">
+        <param name="engine_path" value="$(arg engine_path)" />
+        <rosparam param="class_names">
+            ["red_wuliao", "green_wuliao", "blue_wuliao"]
+        </rosparam>
+        <param name="visualization_topic" value="/detection_visualization" />
+        <param name="detection_threshold" value="0.90" type="double" />
+        <param name="nms_threshold" value="0.4" type="double" />
+    </node>
+
+    <!-- 启动机械臂解析节点 -->
+    <node name="arm_control_node" pkg="bot_arm" type="arm_control_node.py" output="screen" respawn="true"/>
+
+    <!-- 启动检测与任务解析节点 -->
+    <node name="detection_task_node" pkg="bot_arm" type="detection_task_node.py" output="screen" respawn="true"/>
+
+    <!-- === 可视化：图像查看器 === -->
+    <node name="rqt_image_view" 
+          pkg="rqt_gui" 
+          type="rqt_gui" 
+          output="screen"
+          respawn="true"
+          args="--standalone rqt_image_view --args __image:=/camera/image_raw" />
+
+    <!-- === 可视化：参数调节面板 === -->
+    <node name="rqt_reconfigure" 
+          pkg="rqt_gui" 
+          type="rqt_gui" 
+          output="screen"
+          respawn="true"
+          args="--standalone rqt_reconfigure" />
+</launch>

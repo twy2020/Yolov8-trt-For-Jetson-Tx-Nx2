@@ -1,0 +1,23 @@
+<launch>
+  <!-- New reproduction configuration; original source/ is unchanged. -->
+  <arg name="engine_path" default="$(find bot_vision)/engine_models/wuliao_320_v8_nms_simp_static.engine" />
+  <arg name="class_names_str" default="red_wuliao,green_wuliao,blue_wuliao,purple" />
+  <arg name="conf_thresh" default="0.3" />
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="start_camera" default="false" />
+
+  <node name="usb_cam_node" pkg="bot_vision" type="usb_cam_node" output="screen" if="$(arg start_camera)">
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="frame_width" value="640" />
+    <param name="frame_height" value="480" />
+    <param name="publish_rate" value="30.0" />
+    <param name="auto_exposure" value="true" />
+  </node>
+
+  <node name="yolo_trt_node" pkg="bot_vision" type="yolo_trt_node" output="screen">
+    <param name="engine_path" value="$(arg engine_path)" />
+    <param name="class_names_str" value="$(arg class_names_str)" />
+    <param name="conf_thresh" value="$(arg conf_thresh)" type="double" />
+    <remap from="camera/image_raw" to="$(arg image_topic)" />
+  </node>
+</launch>

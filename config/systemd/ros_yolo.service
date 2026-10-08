@@ -1,0 +1,17 @@
+[Unit]
+Description=ROS Yolo Autostart
+After=network.target
+
+[Service]
+Environment=DISPLAY=:0
+Environment=ROS_MASTER_URI=http://localhost:11311
+ExecStart=/home/teng/start_ros_yolo.sh
+Restart=on-failure
+User=teng
+WorkingDirectory=/home/teng
+StandardOutput=inherit
+StandardError=inherit
+
+[Install]
+WantedBy=multi-user.target
+

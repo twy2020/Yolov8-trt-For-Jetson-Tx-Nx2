@@ -1,0 +1,14 @@
+<launch>
+  <!-- 指定 engine 路径（可在命令行用 arg 替换） -->
+  <arg name="engine_path" default="/home/teng/bot_dev/bot_ws/src/bot_vision/engine_models/ring_320_v8_nms_simp_static.engine" />
+
+  <node name="yolo_trt_node" pkg="bot_vision" type="yolo_trt_node" output="screen">
+    <!-- 模型路径作为私有参数 -->
+    <param name="engine_path" value="$(arg engine_path)" />
+
+    <!-- 类别名称：必须传入，支持动态颜色自动生成 -->
+    <rosparam param="class_names">
+      ["red_ring", "green_ring", "blue_ring"]
+    </rosparam>
+  </node>
+</launch>

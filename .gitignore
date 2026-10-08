@@ -1,0 +1,34 @@
+# Private backups and machine-specific evidence
+/archives/
+/environment/
+/reference/
+/verification/
+/docs/BACKUP_PLAN.md
+
+# Publish the standalone perception package, not the whole robot workspace
+/source/ros_ws/src/*
+!/source/ros_ws/src/bot_vision/
+
+# Local builds, caches and historical installer packages
+**/__pycache__/
+*.py[cod]
+**/.eggs/
+**/*.egg-info/
+**/.setuptools-cmake-build/
+**/build/
+**/devel/
+**/install/
+**/logs/
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.whl
+*.egg
+*.log
+*.stderr
+*.pt
+*.pth
+*.onnx
+.env
+.env.*

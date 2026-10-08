@@ -1,0 +1,11 @@
+<launch>
+    <node name="usb_cam_node" pkg="bot_vision" type="usb_cam_node" output="screen">
+        <!-- 参数配置 -->
+        <param name="cam_index" value="0" />
+        <param name="image_topic" value="/camera/image_raw" />
+        <param name="publish_rate" value="30.0" />
+        <param name="frame_width" value="640" />
+        <param name="frame_height" value="480" />
+        <param name="auto_exposure" value="false" />
+    </node>
+</launch>

@@ -1,0 +1,159 @@
+name: Build and Test
+
+on: [push, pull_request]
+env:
+  ONNXSIM_CI: 1
+
+jobs:
+  build_wheels:
+    env:
+      # Only build universal2 package
+      # Related issue: https://github.com/pypa/cibuildwheel/issues/1190
+      CIBW_ARCHS_MACOS: universal2
+      CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+      CIBW_ENVIRONMENT_PASS_LINUX: ONNXSIM_CI
+      CIBW_BEFORE_ALL_LINUX: WD=`pwd` && /opt/python/cp38-cp38/bin/python -m pip install cmake && cp /opt/_internal/cpython-3.8.13/bin/cmake /usr/local/bin/cmake && cmake --version && whereis cmake
+      CIBW_BEFORE_ALL_MACOS: WD=`pwd` && pip install cmake
+      CIBW_TEST_REQUIRES_LINUX: pytest flake8 onnxruntime 
+      CIBW_TEST_REQUIRES_MACOS: pytest onnxruntime 
+      CIBW_TEST_REQUIRES_WINDOWS: pytest onnxruntime 
+      CIBW_BEFORE_TEST_LINUX: pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+      CIBW_BEFORE_TEST_MACOS: pip install torch torchvision
+      CIBW_BEFORE_TEST_WINDOWS: pip install torch torchvision
+      # Skip arm test on x86, skip python 3.6 test because no onnx binary wheel
+      CIBW_TEST_SKIP: "*_arm64 *_universal2:arm64 cp36-*"
+      CIBW_TEST_COMMAND: pytest -v {project}/tests/test_python_api.py
+      # Only build on Python 3 and skip 32-bit or musl builds
+      CIBW_BUILD: "cp3?-* cp310-*"
+      CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-11]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Build onnxsim wheels
+      uses: pypa/cibuildwheel@v2.7.0
+      env:
+        CIBW_ENVIRONMENT: CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=OFF -DProtobuf_USE_STATIC_LIBS=ON" ONNXSIM_PKG_NAME=onnxsim
+        CIBW_ENVIRONMENT_WINDOWS: USE_MSVC_STATIC_RUNTIME=0 CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=OFF -DProtobuf_USE_STATIC_LIBS=ON" ONNXSIM_PKG_NAME=onnxsim
+    - name: Build onnx-simplifier wheels
+      uses: pypa/cibuildwheel@v2.7.0
+      env:
+        # set ONNXSIM_PKG_NAME to onnx-simplifier
+        CIBW_ENVIRONMENT: CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=OFF -DProtobuf_USE_STATIC_LIBS=ON" ONNXSIM_PKG_NAME=onnx-simplifier
+        CIBW_ENVIRONMENT_WINDOWS: USE_MSVC_STATIC_RUNTIME=0 CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=OFF -DProtobuf_USE_STATIC_LIBS=ON" ONNXSIM_PKG_NAME=onnx-simplifier
+    - uses: actions/upload-artifact@v3
+      with:
+        path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Update version
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        sed -i "s/0.0.0/${GITHUB_REF/refs\/tags\/v/}/" setup.py
+
+    - name: Build sdist
+      run: |
+        export ONNXSIM_SDIST=ON
+        export ONNXSIM_PKG_NAME=onnxsim
+        pipx run build --sdist
+        export ONNXSIM_PKG_NAME=onnx-simplifier
+        pipx run build --sdist
+
+    - name: Install and test sdist
+      run: |
+        # It's important to leave the project directory where a 'onnxsim' subdirectory exists
+        cd dist
+        python3 -m pip install onnxruntime
+        python3 -m pip install onnxsim-*.tar.gz
+        python3 -c "import onnxsim; print(dir(onnxsim))"
+        python3 -m pip uninstall -y onnxsim
+        python3 -m pip install onnx-simplifier-*.tar.gz
+        python3 -c "import onnxsim; print(dir(onnxsim))"
+        python3 -m pip uninstall -y onnx-simplifier
+
+    - uses: actions/upload-artifact@v3
+      with:
+        path: dist/*.tar.gz
+
+  upload_pypi:
+    name: Upload to PyPI
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          # unpacks default artifact into dist/
+          # if `name: artifact` is omitted, the action will create extra parent dir
+          name: artifact
+          path: dist
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+          skip_existing: true
+      - name: Publish distribution 📦 to PyPI
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+  build_wasm:
+    name: Build WebAssembly
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: mymindstorm/setup-emsdk@v11
+    - uses: seanmiddleditch/gha-setup-ninja@v3
+    - name: Verify
+      run: emcc -v
+
+    - name: Build
+      run: ./build_wasm.sh
+
+  build_wasm_with_noderawfs:
+    name: Build WebAssembly with NODERAWFS
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: mymindstorm/setup-emsdk@v11
+    - uses: seanmiddleditch/gha-setup-ninja@v3
+    - name: Verify
+      run: emcc -v
+
+    - name: Build
+      run: ./build_wasm.sh ON
+
+  build_native:
+    name: Build Native
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - uses: seanmiddleditch/gha-setup-ninja@v3
+
+    - name: Build
+      run: |
+        mkdir build-native
+        cd build-native
+        cmake -GNinja ..
+        ninja onnxsim_bin

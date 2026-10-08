@@ -1,0 +1,2 @@
+SUBSYSTEM=="tty", ENV{ID_PATH}=="platform-3530000.xhci-usb-0:2.4:1.0", SYMLINK+="ttyLowerBoard"
+SUBSYSTEM=="tty", ENV{ID_PATH}=="platform-3530000.xhci-usb-0:2.1:1.0", SYMLINK+="ttyUpperBoard"

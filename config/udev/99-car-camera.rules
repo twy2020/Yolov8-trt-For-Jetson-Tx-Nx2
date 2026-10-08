@@ -1,0 +1,1 @@
+SUBSYSTEM=="video4linux", ATTR{name}=="UNIQUESKY_CAR_CAMERA", SYMLINK+="car_camera"

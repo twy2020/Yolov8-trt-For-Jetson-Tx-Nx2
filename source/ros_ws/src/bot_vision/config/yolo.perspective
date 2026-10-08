@@ -1,0 +1,71 @@
+{
+  "main_window": {
+    "geometry": {
+      "height": 800,
+      "width": 1200,
+      "x": 50,
+      "y": 50
+    },
+    "state": {
+      "splitter": {
+        "children": [
+          {
+            "splitter": {
+              "children": [
+                {
+                  "tabs": {
+                    "currentIndex": 0,
+                    "tabs": [
+                      {
+                        "name": "Raw Camera",
+                        "type": "rqt_image_view/ImageView",
+                        "state": {
+                          "image_topic": "/camera/image_raw",
+                          "save_directory": ""
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "tabs": {
+                    "currentIndex": 0,
+                    "tabs": [
+                      {
+                        "name": "YOLO Detections",
+                        "type": "rqt_image_view/ImageView",
+                        "state": {
+                          "image_topic": "/detection_visualization",
+                          "save_directory": ""
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "sizes": [600, 600],
+              "state": "horizontal"
+            }
+          },
+          {
+            "tabs": {
+              "currentIndex": 0,
+              "tabs": [
+                {
+                  "name": "Parameters",
+                  "type": "rqt_reconfigure/Reconfigure",
+                  "state": {
+                    "selected_node": "/yolo_trt_node"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "sizes": [600, 200],
+        "state": "vertical"
+      }
+    }
+  },
+  "perspective_name": "YOLO Integrated View"
+}
